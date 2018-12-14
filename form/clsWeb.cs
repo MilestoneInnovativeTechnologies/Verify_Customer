@@ -26,7 +26,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-           //DecryptedValue = Decode();
+           DecryptedValue = Decode();
         }
 
         public clsWeb()
@@ -57,10 +57,13 @@ namespace form
         public static string[] codeArray;
         public static string[] valueArray1 = new string[100];
         public static string[] codeStringArray = new string[50];
-        public static int randomNumber = 5;
+        public static int randomNumber;
+        Random r = new Random();
+        
 
         public string begin()
         {
+            randomNumber = r.Next(1, 5);
             try
             {
                 DBInfo.ServerName = settings.serverName;
@@ -106,7 +109,9 @@ namespace form
                 if (!Verified_Customer)            // Stage1
                 {
                     keyArray = new string[] { "pid", "cmp", "brc", "app", "ver", "eml", "phn", "Hdk", "prs", "ops", "com", "dbn", "isd" };
-                    valueArray = new string[] { pid,data1.cmp,data1.brc,app,data1.ver,data1.eml,data1.phn, Hdk,prs,ops,com,dbn,date };
+                    valueArray = new string[] { pid, data1.cmp, data1.brc, app, data1.ver, data1.eml, data1.phn, Hdk, prs, ops, com, dbn, date };
+                //    keyArray = new string[] { "cus", "seq "};         //test
+                 //   valueArray = new string[] { "CUST000101", "1" };       //test
                 }
                 else                      //Stage 2
                 {
@@ -133,7 +138,7 @@ namespace form
                 valueArrayLength = valueArray.Length;
                 str2 = clsWeb.MergeKeyValueArray(keyArray, valueArray);
                 str2Length = str2.Length;
-                intNum = str2Length / 3;
+                intNum = str2Length/3;
                 if (intNum > 15)
                 {
                     intNum = 11;
@@ -162,12 +167,14 @@ namespace form
 
             int j = 0, k = 0;
             str = clsWeb.responseFromServer;
-            //str = KeyEncoded;        // Testing
+           // str = KeyEncoded;        // Testing
 
             if (!((str == "0") || (str == "1")|| (str == null)))
             {
+               clsXMLSettings clsxml = new clsXMLSettings();
                 try
                 {
+                    settings = clsxml.ReadSettings();
                     DBInfo.ServerName = settings.serverName;
                     DBInfo.DBName = settings.dbName;
                     DBInfo.DBPort = settings.dbPort;
@@ -183,7 +190,8 @@ namespace form
                     string[] stringArray = clsWeb.splitStringToArray(str);
                     string[] stringArr = { stringArray[1], stringArray[3], stringArray[6] };
                     str1 = clsWeb.generateCode(stringArr);
-                    string[] array = clsWeb.splitByIntNum(str1, randomNumber);
+                    int random= Int32.Parse(stringArray[2].ToString());
+                    string[] array = clsWeb.splitByIntNum(str1, random);
 
                     //// Split an Array into two arrays ////
 
@@ -236,7 +244,7 @@ namespace form
                     string values = clsWeb.Base64Decode(valuestring);
                     string[] keysArr = clsWeb.decodedArray(keys);
                     string[] valuessArr = clsWeb.decodedArray(values);
-                    string cust = getValue(keysArr, valuessArr, "cust");
+                    string cust = getValue(keysArr, valuessArr, "cus");
                     string seq = getValue(keysArr, valuessArr, "seq");
 
                     clsDBConnection.updateTable(cnn, cust, seq);
@@ -283,7 +291,7 @@ namespace form
         public static string getValue(string[] arr1, string[] arr2, string strn)
         {
             int index = 0;
-            index = Array.FindIndex(arr1, row => row == strn);
+            index = Array.IndexOf(arr1,strn);
             string cust = arr2[index];
 
             return cust;
@@ -383,10 +391,11 @@ namespace form
         public static string[] splitStringToArray(string str)
         {
             string[] strArray = new string[9];
-            strArray[0] = Convert.ToInt32(str.Substring(0, 1), 16).ToString(); str = str.Remove(0, 1);
-            strArray[1] = str.Substring(0, 11); str = str.Remove(0, 11);
+            int Num = Convert.ToInt32(str.Substring(0, 1), 16);
+            strArray[0] = Num.ToString(); str = str.Remove(0, 1);
+            strArray[1] = str.Substring(0, Num); str = str.Remove(0, Num);
             strArray[2] = str.Substring(0, 1); str = str.Remove(0, 1);
-            strArray[3] = str.Substring(0, 11); str = str.Remove(0, 11);
+            strArray[3] = str.Substring(0, Num); str = str.Remove(0, Num);
             strArray[4] = Convert.ToInt32(str.Substring(0, str.IndexOf("g")), 16).ToString(); str = str.Remove(0, str.IndexOf("g"));
             strArray[5] = str.Substring(0, str.IndexOf("g") + 1); str = str.Remove(0, str.IndexOf("g") + 1);
             strArray[6] = str.Substring(0, str.LastIndexOf("h")); str = str.Remove(0, str.LastIndexOf("h"));
@@ -474,7 +483,8 @@ namespace form
             var encoding = ASCIIEncoding.ASCII;
             using (var reader = new System.IO.StreamReader(webresp.GetResponseStream(), encoding))
             {
-                responseFromServer = reader.ReadToEnd();
+                  responseFromServer = reader.ReadToEnd();
+                 
             }
             web.Decode();
             webresp.Close();

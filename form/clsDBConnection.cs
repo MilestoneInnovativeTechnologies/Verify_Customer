@@ -108,7 +108,7 @@ namespace form
             string str = "";
             try
             {
-                str = "UPDATE SOFTWAREINFO set CUSTOMERID=" + cust + ",SEQUENCEID=" + seq +"WHERE SLNO=1";
+                str = "UPDATE SOFTWAREINFO set CUSTOMERID='" + cust + "',SEQUENCEID='" + seq +"' WHERE SLNO=1";
                 MySqlCommand cmd = new MySqlCommand(str, conn);
                 cmd.CommandType = System.Data.CommandType.Text;
                 cmd.ExecuteNonQuery();
