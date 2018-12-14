@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<AppSettings>
+  <CATEGORY>BAS</CATEGORY>
+  <DBUSER>root</DBUSER>
+  <DBPWD>metalic</DBPWD>
+  <USER>admin</USER>
+  <PWD>abcd</PWD>
+</AppSettings>
