@@ -103,17 +103,34 @@ namespace form
             com.Dispose();
             return detail;
         }
-        public static Boolean updateTable(MySqlConnection conn,string cust,string seq)
+        public static Boolean updateTable(MySqlConnection conn,string cust,string seq,string prd,string edn)
         {
             string str = "";
             try
             {
-                str = "UPDATE SOFTWAREINFO set CUSTOMERID='" + cust + "',SEQUENCEID='" + seq +"' WHERE SLNO=1";
+                str = "UPDATE SOFTWAREINFO set CUSTOMERID='" + cust + "',SEQUENCEID='" + seq + "',PROD_CODE='" + prd + "',EDN_CODE='" + edn + "' WHERE SLNO=1";
                 MySqlCommand cmd = new MySqlCommand(str, conn);
                 cmd.CommandType = System.Data.CommandType.Text;
                 cmd.ExecuteNonQuery();
             }
             catch(MySqlException ex)
+            {
+                errorstring = ex.Message;
+                return false;
+            }
+            return true;
+        }
+        public static Boolean updateVersion(MySqlConnection conn, string ver)
+        {
+            string str = "";
+            try
+            {
+                str = "UPDATE SOFTWAREINFO set VERSION='" + ver + "' WHERE SLNO=1";
+                MySqlCommand cmd = new MySqlCommand(str, conn);
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException ex)
             {
                 errorstring = ex.Message;
                 return false;

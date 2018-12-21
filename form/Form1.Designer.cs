@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.btnAdd = new System.Windows.Forms.Button();
+            this.txtview = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnAdd
@@ -41,20 +42,31 @@
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
+            // txtview
+            // 
+            this.txtview.Location = new System.Drawing.Point(52, 122);
+            this.txtview.Multiline = true;
+            this.txtview.Name = "txtview";
+            this.txtview.Size = new System.Drawing.Size(168, 77);
+            this.txtview.TabIndex = 2;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.txtview);
             this.Controls.Add(this.btnAdd);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.TextBox txtview;
     }
 }
 

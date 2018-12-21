@@ -28,6 +28,7 @@ namespace form
         private void btnAdd_Click(object sender, EventArgs e)
         {
            clsWeb.sendDataToSite();
+            txtview.Text = clsWeb.responseFromServer;
         }
     }
 }

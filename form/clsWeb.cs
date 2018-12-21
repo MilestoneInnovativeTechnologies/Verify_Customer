@@ -19,6 +19,8 @@ namespace form
         {
             public string custid;
             public string seqno;
+            public string prd;
+            public string edn;
             public string version;
 
         }
@@ -26,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-           DecryptedValue = Decode();
+           //DecryptedValue = Decode();
         }
 
         public clsWeb()
@@ -56,7 +58,7 @@ namespace form
         public string[] keyName;
         public static string[] codeArray;
         public static string[] valueArray1 = new string[100];
-        public static string[] codeStringArray = new string[50];
+        public static string[] codeStringArray = new string[100];
         public static int randomNumber;
         Random r = new Random();
         
@@ -108,7 +110,7 @@ namespace form
 
                 if (!Verified_Customer)            // Stage1
                 {
-                    keyArray = new string[] { "pid", "cmp", "brc", "app", "ver", "eml", "phn", "Hdk", "prs", "ops", "com", "dbn", "isd" };
+                    keyArray = new string[] { "pid", "cmp", "brc", "app", "ver", "eml", "phn", "hdk", "prs", "ops", "com", "dbn", "isd" };
                     valueArray = new string[] { pid, data1.cmp, data1.brc, app, data1.ver, data1.eml, data1.phn, Hdk, prs, ops, com, dbn, date };
                 //    keyArray = new string[] { "cus", "seq "};         //test
                  //   valueArray = new string[] { "CUST000101", "1" };       //test
@@ -116,8 +118,8 @@ namespace form
                 else                      //Stage 2
                 {
                  //   sect = getDetail(cnn, ref errorstring);
-                    keyArray = new string[] { "cus", "seq", "ver" };
-                    valueArray = new string[] { sect.custid, sect.seqno, sect.version };
+                    keyArray = new string[] { "cus", "seq","prd","edn", "ver" };
+                    valueArray = new string[] { sect.custid, sect.seqno, sect.prd, sect.edn, sect.version };
                 }
                 for (int i = 0; i < valueArray.Length; i++)
                 {
@@ -168,6 +170,7 @@ namespace form
             int j = 0, k = 0;
             str = clsWeb.responseFromServer;
            // str = KeyEncoded;        // Testing
+           
 
             if (!((str == "0") || (str == "1")|| (str == null)))
             {
@@ -184,8 +187,12 @@ namespace form
 
                     connectionstring = clsDBConnection.CreateConnectionString(DBInfo);
                     MySqlConnection cnn = new MySqlConnection(connectionstring);
-                    cnn.Open();                
-                   
+                    cnn.Open();
+                    if (str.Contains("."))
+                    {
+                        clsDBConnection.updateVersion(cnn, str);
+                        return true;
+                    }
                     int len = str.Length;
                     string[] stringArray = clsWeb.splitStringToArray(str);
                     string[] stringArr = { stringArray[1], stringArray[3], stringArray[6] };
@@ -246,8 +253,11 @@ namespace form
                     string[] valuessArr = clsWeb.decodedArray(values);
                     string cust = getValue(keysArr, valuessArr, "cus");
                     string seq = getValue(keysArr, valuessArr, "seq");
+                    string prd = getValue(keysArr, valuessArr, "prd");
+                    string edn = getValue(keysArr, valuessArr, "edn");
 
-                    clsDBConnection.updateTable(cnn, cust, seq);
+
+                    clsDBConnection.updateTable(cnn, cust, seq,prd,edn);
 
 
                 }
@@ -264,7 +274,7 @@ namespace form
         {
             Section section = new Section();
 
-            string strSql = "select customerid,sequenceid,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
+            string strSql = "select customerid,sequenceid,prod_code,edn_code,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
             MySqlCommand Com = new MySqlCommand();
             MySqlDataReader reader;
             Com.Connection = conn;
@@ -276,6 +286,8 @@ namespace form
                 {
                     section.custid = reader["customerid"].ToString();
                     section.seqno = reader["sequenceid"].ToString();
+                    section.prd = reader["prod_code"].ToString();
+                    section.edn = reader["edn_code"].ToString();
                     section.version = reader["verno"].ToString();
                 }
                 reader.Close();
