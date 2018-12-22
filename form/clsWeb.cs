@@ -47,7 +47,7 @@ namespace form
         public static string Server, password, serial, HexKeyArrLen, HexValArrLen;
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
-        public static string code, codeString, ArrayString = null, str2, Code, str, str1, custid;
+        public static string code, codeString, ArrayString = null,MergeString, KeyValueMerged, Code, str, str1, custid;
         private bool decrypt=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
         public static int keyArrayLength, valueArrayLength, str2Length, intNum, i = 2;
@@ -66,6 +66,7 @@ namespace form
         public string begin()
         {
             randomNumber = r.Next(1, 5);
+           // randomNumber = 5;
             try
             {
                 DBInfo.ServerName = settings.serverName;
@@ -138,8 +139,8 @@ namespace form
                 valueArray = clsWeb.splitByLength(Encodedvalue, randomNumber);
                 keyArrayLength = keyArray.Length;
                 valueArrayLength = valueArray.Length;
-                str2 = clsWeb.MergeKeyValueArray(keyArray, valueArray);
-                str2Length = str2.Length;
+                KeyValueMerged = clsWeb.MergeKeyValueArray(keyArray, valueArray);
+                str2Length = KeyValueMerged.Length;
                 intNum = str2Length/3;
                 if (intNum > 15)
                 {
@@ -147,7 +148,7 @@ namespace form
                 }
 
                 string HexintNum = intNum.ToString("x");                             // Converting into hexadecimal
-                string[] stringArray = clsWeb.splitByIntNum(str2, intNum);
+                string[] stringArray = clsWeb.splitByIntNum(KeyValueMerged, intNum);
                 HexKeyArrLen = clsWeb.convertKeyToHex(keyArrayLength);
                 HexValArrLen = clsWeb.convertValueToHex(valueArrayLength);
                 CodeArray = clsWeb.generateCodeArray(intNum, HexintNum, stringArray, HexKeyArrLen, HexValArrLen);
@@ -328,7 +329,7 @@ namespace form
             {
                 if (i != maxIndex)
                 {
-                    str2 += keyArray[i] + valueArray[j];
+                    MergeString += keyArray[i] + valueArray[j];
                     i++; j++;
                 }
                 if (i == maxIndex)
@@ -339,12 +340,12 @@ namespace form
             Array.Copy(valueArray, i, valueArray1, 0, n);                              //Copy values from one array to another array
             valueArray1 = valueArray1.Where(x => !string.IsNullOrEmpty(x)).ToArray();
             for (i = 0; i <= valueArray1.Length - 1; i++)
-                str2 += valueArray1[i];
-            return str2;
+                MergeString += valueArray1[i];
+            return MergeString;
         }
         public static string[] splitByLength(string str, int chunksize)
         {
-            string[] substr = new string[100];
+            string[] substr = new string[500];
             int len = str.Length;
             while (!String.IsNullOrEmpty(str))
             {
