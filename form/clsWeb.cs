@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-           //DecryptedValue = Decode();
+           //DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -50,7 +50,7 @@ namespace form
         public static string code, codeString, ArrayString = null,MergeString, KeyValueMerged, Code, str, str1, custid;
         private bool decrypt=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
-        public static int keyArrayLength, valueArrayLength, str2Length, intNum, i = 2;
+        public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
 
         public string[] keyArray;
         public string[] valueArray;
@@ -65,8 +65,8 @@ namespace form
 
         public string begin()
         {
-            randomNumber = r.Next(1, 5);
-           // randomNumber = 5;
+            randomNumber = r.Next(2, 5);
+           
             try
             {
                 DBInfo.ServerName = settings.serverName;
@@ -80,9 +80,9 @@ namespace form
                 MySqlConnection cnn = new MySqlConnection(connectionstring);
                 cnn.Open();
                 data1 = clsDBConnection.getInformation(cnn);
-                
-                Hdk = clsKeyInfo.getKeyName(cnn,password,"H01",decrypt);
-                prs = clsKeyInfo.getKeyName(cnn, password, "H02", decrypt);
+
+                Hdk = clsKeyInfo.getKeySerial (cnn,password,"H01",decrypt);
+                prs = clsKeyInfo.getKeySerial(cnn, password, "H02", decrypt);
                 ops = clsKeyInfo.getKeyName(cnn, password, "S01", decrypt);
                 com = clsKeyInfo.getKeyName(cnn, password, "S02", decrypt);
                 app = clsKeyInfo.getKeyName(cnn, password, "S03", decrypt);
@@ -113,7 +113,7 @@ namespace form
                 {
                     keyArray = new string[] { "pid", "cmp", "brc", "app", "ver", "eml", "phn", "hdk", "prs", "ops", "com", "dbn", "isd" };
                     valueArray = new string[] { pid, data1.cmp, data1.brc, app, data1.ver, data1.eml, data1.phn, Hdk, prs, ops, com, dbn, date };
-                //    keyArray = new string[] { "cus", "seq "};         //test
+                //    keyArray = new string[] { "cus", "seq "};              //test
                  //   valueArray = new string[] { "CUST000101", "1" };       //test
                 }
                 else                      //Stage 2
@@ -140,8 +140,8 @@ namespace form
                 keyArrayLength = keyArray.Length;
                 valueArrayLength = valueArray.Length;
                 KeyValueMerged = clsWeb.MergeKeyValueArray(keyArray, valueArray);
-                str2Length = KeyValueMerged.Length;
-                intNum = str2Length/3;
+                MergedLength = KeyValueMerged.Length;
+                intNum = MergedLength / 3;
                 if (intNum > 15)
                 {
                     intNum = 11;
@@ -170,7 +170,7 @@ namespace form
 
             int j = 0, k = 0;
             str = clsWeb.responseFromServer;
-           // str = KeyEncoded;        // Testing
+           // str = KeyEncoded;              // Testing
            
 
             if (!((str == "0") || (str == "1")|| (str == null)))
@@ -189,11 +189,13 @@ namespace form
                     connectionstring = clsDBConnection.CreateConnectionString(DBInfo);
                     MySqlConnection cnn = new MySqlConnection(connectionstring);
                     cnn.Open();
-                    if (str.Contains("."))
+                    if (Verified_Customer)
                     {
-                        clsDBConnection.updateVersion(cnn, str);
+                        //clsDBConnection.updateVersion(cnn, str);        
                         return true;
                     }
+                    else
+                    {
                     int len = str.Length;
                     string[] stringArray = clsWeb.splitStringToArray(str);
                     string[] stringArr = { stringArray[1], stringArray[3], stringArray[6] };
@@ -257,10 +259,8 @@ namespace form
                     string prd = getValue(keysArr, valuessArr, "prd");
                     string edn = getValue(keysArr, valuessArr, "edn");
 
-
                     clsDBConnection.updateTable(cnn, cust, seq,prd,edn);
-
-
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -481,7 +481,7 @@ namespace form
 
         public static void sendDataToSite()
         {
-            clsWeb web = new clsWeb();
+             clsWeb web = new clsWeb();
 
             url = "http://milestoneit.net/api/appinit/" + clsWeb.code;
             // Create a request using a URL that can receive a post. 
