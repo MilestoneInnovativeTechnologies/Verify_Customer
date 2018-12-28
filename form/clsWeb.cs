@@ -47,7 +47,7 @@ namespace form
         public static string Server, password, serial, HexKeyArrLen, HexValArrLen;
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
-        public static string code, codeString, ArrayString = null,MergeString, KeyValueMerged, Code, str, str1, custid;
+        public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, str, str1, custid;
         private bool decrypt=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
         public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
@@ -57,7 +57,7 @@ namespace form
         public string[] CodeArray;
         public string[] keyName;
         public static string[] codeArray;
-        public static string[] valueArray1 = new string[100];
+        public static string[] valueArray1 = new string[500];
         public static string[] codeStringArray = new string[100];
         public static int randomNumber;
         Random r = new Random();
@@ -92,7 +92,8 @@ namespace form
 
                 sect = getDetail(cnn, ref errorstring);
                 //custid = clsDBConnection.getcondition(cnn, ref errorstring);
-                if (sect.custid == "")
+
+                if (string.IsNullOrEmpty(sect.custid)==true)
                 {
                    Verified_Customer=false;
                 }

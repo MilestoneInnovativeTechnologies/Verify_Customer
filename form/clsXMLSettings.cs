@@ -52,7 +52,7 @@ namespace form
                   var dirName = subDirectory[ini];
                   if (dirName.StartsWith("C:\\ProgramData\\ePlus"))
                   {
-                      if (dirName == xmlPath + "\\ePlus Business Edition")
+                      if (dirName == xmlPath + "\\ePlus Express Edition")
                       {
                           DataSet ds = new DataSet();
                           xmlSettingsFile = dirName + "\\Settings.xml";
