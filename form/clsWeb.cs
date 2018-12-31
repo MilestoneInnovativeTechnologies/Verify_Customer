@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-           //DecryptedValue = Decode();         //Testing
+           DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -47,7 +47,7 @@ namespace form
         public static string Server, password, serial, HexKeyArrLen, HexValArrLen;
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
-        public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, str, str1, custid;
+        public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, response, mergedstring, custid;
         private bool decrypt=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
         public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
@@ -66,6 +66,7 @@ namespace form
         public string begin()
         {
             randomNumber = r.Next(2, 5);
+           
            
             try
             {
@@ -170,11 +171,14 @@ namespace form
             string[] valuearray = new string[100];
 
             int j = 0, k = 0;
-            str = clsWeb.responseFromServer;
-           // str = KeyEncoded;              // Testing
-           
+            response = clsWeb.responseFromServer;
+            //response = "bY3VzQ1VTfHN4lVDAwcXxwMD5gAycmR8OHwxZWRufFBSRDAwMXxFRE4wMDE=h9";      //testing
+            
+          
 
-            if (!((str == "0") || (str == "1")|| (str == null)))
+
+
+            if (!((response == "0") || (response == "1")|| (response == null)))
             {
                clsXMLSettings clsxml = new clsXMLSettings();
                 try
@@ -192,27 +196,28 @@ namespace form
                     cnn.Open();
                     if (Verified_Customer)
                     {
-                        //clsDBConnection.updateVersion(cnn, str);        
+                        clsDBConnection.updateVersion(cnn, response);        
                         return true;
                     }
                     else
                     {
-                    int len = str.Length;
-                    string[] stringArray = clsWeb.splitStringToArray(str);
+                    int len = response.Length;
+                    string[] stringArray = clsWeb.splitStringToArray(response);
                     string[] stringArr = { stringArray[1], stringArray[3], stringArray[6] };
-                    str1 = clsWeb.generateCode(stringArr);
+                    mergedstring = clsWeb.generateCode(stringArr);
                     int random= Int32.Parse(stringArray[2].ToString());
-                    string[] array = clsWeb.splitByIntNum(str1, random);
+                    string[] array = clsWeb.splitByIntNum(mergedstring, random);
 
-                    //// Split an Array into two arrays ////
-
+                        //// Split an Array into two arrays ////
+                        int n=(array.Length/2) - 3;
                     for (int i = 0; i < array.Length; i++)
                     {
 
                         if (i % 2 == 0)
                         {
-                            if (j <= keyArrayLength - 1)
-                            {
+                           // if (j <= keyArrayLength - 1)
+                              if (j <= n)
+                              {
                                 keyarray[j] = array[i];
                                 j++;
 
@@ -275,8 +280,8 @@ namespace form
         public static Section getDetail(MySqlConnection conn, ref string errorString)
         {
             Section section = new Section();
-
-            string strSql = "select customerid,sequenceid,prod_code,edn_code,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
+            //string strSql = "select customerid,sequenceid,prod_code,edn_code,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
+            string strSql = "select customerid,sequenceid,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
             MySqlCommand Com = new MySqlCommand();
             MySqlDataReader reader;
             Com.Connection = conn;
@@ -288,8 +293,8 @@ namespace form
                 {
                     section.custid = reader["customerid"].ToString();
                     section.seqno = reader["sequenceid"].ToString();
-                    section.prd = reader["prod_code"].ToString();
-                    section.edn = reader["edn_code"].ToString();
+                   // section.prd = reader["prod_code"].ToString();
+                    //section.edn = reader["edn_code"].ToString();
                     section.version = reader["verno"].ToString();
                 }
                 reader.Close();
