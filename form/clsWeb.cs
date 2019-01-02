@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-           //DecryptedValue = Decode();         //Testing
+            DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -48,7 +48,7 @@ namespace form
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
         public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, response, mergedstring, custid;
-        private bool decrypt=true;
+        private bool decrypt=true,length;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
         public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
 
@@ -171,10 +171,10 @@ namespace form
             string[] valuearray = new string[100];
 
             int j = 0, k = 0;
-            response = clsWeb.responseFromServer;
-           //response = "bY3VzQ1VTfHN4lVDAwcXxwMD5gAycmR8OHwxZWRufFBSRDAwMXxFRE4wMDE=h9";      //testing
-            
-          
+            //response = clsWeb.responseFromServer;
+            response = "bY3Q1VzVTfHV2DNlAwcXMDxwagExcmMnR8wxZWfFRuBSRDAwMXxFRE4wMDY=h12";      //testing
+            // response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";
+
 
 
 
@@ -194,7 +194,7 @@ namespace form
                     connectionstring = clsDBConnection.CreateConnectionString(DBInfo);
                     MySqlConnection cnn = new MySqlConnection(connectionstring);
                     cnn.Open();
-                    if (Verified_Customer)
+                    if (!Verified_Customer)
                     {
                         clsDBConnection.updateVersion(cnn, response);        
                         return true;
@@ -208,20 +208,26 @@ namespace form
                     valueArrayLength = Convert.ToInt32(stringArray[8]);
                     mergedstring = clsWeb.generateCode(stringArr);
                     int random= Int32.Parse(stringArray[2].ToString());
+
                     string[] array = clsWeb.splitByIntNum(mergedstring, random);
 
                         //// Split an Array into two arrays ////
+                   if(keyArrayLength<valueArrayLength)
+                   { 
+                        keyarray = keyStrArray(array,keyArrayLength);
+                        valuearray= valueStrArray(array,keyArrayLength);
+                   }
+                  /* else if(keyArrayLength>valueArrayLength)
+                   {
+                         keyarray = valueStrArray(array, valueArrayLength);
+                         valuearray = keyStrArray(array, valueArrayLength);
+                    }*/
 
-
-                    keyarray = keyStrArray(array,keyArrayLength);
-                    valuearray= valueStrArray(array, valueArrayLength,keyArrayLength);
-
-                       
                         ///////////////////////// 
 
                         //// Find last element from array  and if "$" exist , Remove it    ////
 
-                    keyarray = removeLastEle(keyarray.Last(),keyarray);
+                        keyarray = removeLastEle(keyarray.Last(),keyarray);
                     valuearray = removeLastEle(valuearray.Last(),valuearray);
                  
                     ////////////////////////
@@ -279,9 +285,32 @@ namespace form
             return section;
             Com.Dispose();
         }
+  /*      public static string[] StrArray(int index,string[] arr, int length,bool key)
+        {
+            string[] array = new string[100];
+            int j = 0;
+            if (key == true)
+            {
+
+            }
+            else
+            {
+                for (int i = index; i < arr.Length; i += 2)
+                {
+                    if(j<length)
+                    {
+                        array[j] = arr[i];
+                        j++;
+                    }
+                    
+                }
+            }
+
+            return array;
+        }           */
         public static string[] keyStrArray(string[] arr, int length)
         {
-            string[] keyarray = new string[length];
+            string[] array = new string[length];
             int j = 0;
             for (int i = 0; i < arr.Length;)
             {
@@ -289,49 +318,46 @@ namespace form
                 if (j <length)
 
                 {
-                    keyarray[j] = arr[i];
+                    array[j] = arr[i];
                     j++;
 
                 }
                 i+=2;
             }
 
-          return keyarray;
+          return array;
         }
-        public static string[] valueStrArray(string[] arr, int length,int keylength)
+        public static string[] valueStrArray(string[] arr, int keylength)
         {
-            string[] valuearray = new string[length];
+            string[] array = new string[50];
             int j = 0;
-            for (int i = 1; i < arr.Length;)
+            int index=0;
+            for (int i = 1; i < arr.Length; i += 2)
             {
-
                 if (j < keylength)
-
                 {
-                    valuearray[j] = arr[i];
+                    array[j] = arr[i];
                     j++;
-                    if (j != keylength )
-                        i += 2;
-                    else
-                        i++;
                 }
-                else if (j < length)
-                {
-                    valuearray[j] = arr[i];
-                    j++;
-                    i++;
+                if (j == keylength)
+                { 
+                    index= i+1;
+                    break;
                 }
             }
-           /* for(int i=keylength;i<arr.Length;i++)
+            //i--;
+            for (int k=index; k <arr.Length; k ++)
             {
-                if(j<keylength)
-                {
-                    valuearray[j] = arr[i];
+                //if (j < length)
+                //{
+                array[j] = arr[k];
                     j++;
-                }
-            } */
+                //}
 
-            return valuearray;
+            }
+            array = array.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+            return array;
         }
         public static string getValue(string[] arr1, string[] arr2, string strn)
         {
