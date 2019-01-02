@@ -165,10 +165,10 @@ namespace form
         {
             string[] keyarray = new string[100];
             string[] valuearray = new string[100];
-
+            Verified_Customer = false; 
             int j = 0, k = 0, startindex ;
             response = clsWeb.responseFromServer;
-            // response = "bY3Q1VzVTfHV2DNlAwcXMDxwagExcmMnR8wxZWfFRuBSRDAwMXxFRE4wMDY=h12";      //testing
+            //response = "bY3VzfQ1VTVH5NlcXDAwMDxw4gcmRExNXw8ZWRu5fFBSRDAwMnxFRE4wMDc=$$$$h8";      //testing
              //response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";                       //test
 
             if (!((response=="0")|| (response == "1")|| (response == null)))
@@ -189,7 +189,7 @@ namespace form
                     cnn.Open();
                     if (Verified_Customer)
                     {
-                        clsDBConnection.updateVersion(cnn, response);        
+                       // clsDBConnection.updateVersion(cnn, response);        
                         return true;
                     }
                     else
@@ -472,7 +472,7 @@ namespace form
             strArray[5] = str.Substring(0, str.IndexOf("g") + 1); str = str.Remove(0, str.IndexOf("g") + 1);
             strArray[6] = str.Substring(0, str.LastIndexOf("h")); str = str.Remove(0, str.LastIndexOf("h"));
             strArray[7] = str.Substring(0, str.IndexOf("h") + 1); str = str.Remove(0, str.IndexOf("h") + 1);
-            strArray[8] = str.Substring(0, str.Length); str = str.Remove(0, str.Length);
+            strArray[8] = Convert.ToInt32(str.Substring(0, str.Length),16).ToString(); str = str.Remove(0, str.Length);
 
             return strArray;
         }
