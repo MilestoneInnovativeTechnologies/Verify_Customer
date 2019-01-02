@@ -43,12 +43,12 @@ namespace form
         public static Details data1;
         public xmlSettings settings;
         
-        public Boolean DecryptedValue,Verified_Customer;
+        public static Boolean DecryptedValue,Verified_Customer;
         public static string Server, password, serial, HexKeyArrLen, HexValArrLen;
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
         public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, response, mergedstring, custid;
-        private bool decrypt=true,length;
+        private bool decrypt=true,smallarrlength=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
         public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
 
@@ -65,8 +65,7 @@ namespace form
 
         public string begin()
         {
-            randomNumber = r.Next(2, 5);
-           
+            randomNumber = r.Next(2, 5);          
            
             try
             {
@@ -92,8 +91,7 @@ namespace form
                 pid = clsKeyInfo.getKeySerial(cnn, password, "S07", decrypt);
 
                 sect = getDetail(cnn, ref errorstring);
-                //custid = clsDBConnection.getcondition(cnn, ref errorstring);
-
+                
                 if (string.IsNullOrEmpty(sect.custid)==true)
                 {
                    Verified_Customer=false;
@@ -115,8 +113,6 @@ namespace form
                 {
                     keyArray = new string[] { "pid", "cmp", "brc", "app", "ver", "eml", "phn", "hdk", "prs", "ops", "com", "dbn", "isd" };
                     valueArray = new string[] { pid, data1.cmp, data1.brc, app, data1.ver, data1.eml, data1.phn, Hdk, prs, ops, com, dbn, date };
-                //    keyArray = new string[] { "cus", "seq "};              //test
-                 //   valueArray = new string[] { "CUST000101", "1" };       //test
                 }
                 else                      //Stage 2
                 {
@@ -170,13 +166,10 @@ namespace form
             string[] keyarray = new string[100];
             string[] valuearray = new string[100];
 
-            int j = 0, k = 0;
+            int j = 0, k = 0, startindex ;
             response = clsWeb.responseFromServer;
-            //response = "bY3Q1VzVTfHV2DNlAwcXMDxwagExcmMnR8wxZWfFRuBSRDAwMXxFRE4wMDY=h12";      //testing
-            // response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";
-
-
-
+            // response = "bY3Q1VzVTfHV2DNlAwcXMDxwagExcmMnR8wxZWfFRuBSRDAwMXxFRE4wMDY=h12";      //testing
+             //response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";                       //test
 
             if (!((response=="0")|| (response == "1")|| (response == null)))
             {
@@ -194,7 +187,7 @@ namespace form
                     connectionstring = clsDBConnection.CreateConnectionString(DBInfo);
                     MySqlConnection cnn = new MySqlConnection(connectionstring);
                     cnn.Open();
-                    if (!Verified_Customer)
+                    if (Verified_Customer)
                     {
                         clsDBConnection.updateVersion(cnn, response);        
                         return true;
@@ -213,21 +206,23 @@ namespace form
 
                         //// Split an Array into two arrays ////
                    if(keyArrayLength<valueArrayLength)
-                   { 
-                        keyarray = keyStrArray(array,keyArrayLength);
-                        valuearray= valueStrArray(array,keyArrayLength);
-                   }
-                  /* else if(keyArrayLength>valueArrayLength)
                    {
-                         keyarray = valueStrArray(array, valueArrayLength);
-                         valuearray = keyStrArray(array, valueArrayLength);
-                    }*/
+                        startindex = 0;  
+                        keyarray = smallStrArray(startindex,array,keyArrayLength);
+                        valuearray= largeStrArray(startindex+1,array,keyArrayLength);
+                   }
+                   else if(keyArrayLength>valueArrayLength)
+                   {
+                         startindex = 1;
+                         keyarray = largeStrArray(startindex-1,array, valueArrayLength);
+                         valuearray = smallStrArray(startindex,array, valueArrayLength);
+                    }
 
                         ///////////////////////// 
 
                         //// Find last element from array  and if "$" exist , Remove it    ////
 
-                        keyarray = removeLastEle(keyarray.Last(),keyarray);
+                    keyarray = removeLastEle(keyarray.Last(),keyarray);
                     valuearray = removeLastEle(valuearray.Last(),valuearray);
                  
                     ////////////////////////
@@ -253,13 +248,12 @@ namespace form
                 }
             }
             return true;
-
         }
         public static Section getDetail(MySqlConnection conn, ref string errorString)
         {
             Section section = new Section();
-            //string strSql = "select customerid,sequenceid,prod_code,edn_code,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
-            string strSql = "select customerid,sequenceid,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
+            string strSql = "select customerid,sequenceid,productid,editionid,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
+           // string strSql = "select customerid,sequenceid,max(ver) as verno  from softwareinfo join logsoftwareupdate ";
             MySqlCommand Com = new MySqlCommand();
             MySqlDataReader reader;
             Com.Connection = conn;
@@ -271,8 +265,8 @@ namespace form
                 {
                     section.custid = reader["customerid"].ToString();
                     section.seqno = reader["sequenceid"].ToString();
-                   // section.prd = reader["prod_code"].ToString();
-                    //section.edn = reader["edn_code"].ToString();
+                    section.prd = reader["productid"].ToString();
+                    section.edn = reader["editionid"].ToString();
                     section.version = reader["verno"].ToString();
                 }
                 reader.Close();
@@ -280,18 +274,29 @@ namespace form
             catch (MySqlException sqlEx)
             {
                 errorString = sqlEx.Message;
-
             }
             return section;
             Com.Dispose();
         }
-  /*      public static string[] StrArray(int index,string[] arr, int length,bool key)
+    /*   public static string[] StrArray(int index,string[] arr, int length,bool key)
         {
             string[] array = new string[100];
             int j = 0;
             if (key == true)
             {
-
+                for (int i = index; i < arr.Length;i+=2)
+                {
+                    if (j < length)
+                    {
+                        array[j] = arr[i];
+                        j++;
+                    }
+                    if (j == length)
+                    {
+                        index = i + 1;
+                        break;
+                    }
+                }
             }
             else
             {
@@ -301,18 +306,16 @@ namespace form
                     {
                         array[j] = arr[i];
                         j++;
-                    }
-                    
+                    }                    
                 }
             }
-
             return array;
         }           */
-        public static string[] keyStrArray(string[] arr, int length)
+        public static string[] smallStrArray(int startindex,string[] arr, int length)
         {
             string[] array = new string[length];
             int j = 0;
-            for (int i = 0; i < arr.Length;)
+            for (int i = startindex; i < arr.Length;)
             {
 
                 if (j <length)
@@ -320,19 +323,18 @@ namespace form
                 {
                     array[j] = arr[i];
                     j++;
-
                 }
                 i+=2;
             }
 
           return array;
         }
-        public static string[] valueStrArray(string[] arr, int keylength)
+        public static string[] largeStrArray(int startindex,string[] arr, int keylength)
         {
             string[] array = new string[50];
             int j = 0;
             int index=0;
-            for (int i = 1; i < arr.Length; i += 2)
+            for (int i = startindex; i < arr.Length; i += 2)
             {
                 if (j < keylength)
                 {
@@ -340,20 +342,19 @@ namespace form
                     j++;
                 }
                 if (j == keylength)
-                { 
-                    index= i+1;
+                {
+                    if (startindex == 1)
+                        index = i + 1;
+                    else
+                        index = i + 2;
                     break;
                 }
             }
-            //i--;
+            
             for (int k=index; k <arr.Length; k ++)
             {
-                //if (j < length)
-                //{
                 array[j] = arr[k];
                     j++;
-                //}
-
             }
             array = array.Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
