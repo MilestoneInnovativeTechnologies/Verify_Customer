@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-            DecryptedValue = Decode();         //Testing
+            //DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -171,8 +171,8 @@ namespace form
             string[] valuearray = new string[100];
 
             int j = 0, k = 0;
-            //response = clsWeb.responseFromServer;
-            response = "bY3Q1VzVTfHV2DNlAwcXMDxwagExcmMnR8wxZWfFRuBSRDAwMXxFRE4wMDY=h12";      //testing
+            response = clsWeb.responseFromServer;
+            //response = "bY3Q1VzVTfHV2DNlAwcXMDxwagExcmMnR8wxZWfFRuBSRDAwMXxFRE4wMDY=h12";      //testing
             // response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";
 
 
