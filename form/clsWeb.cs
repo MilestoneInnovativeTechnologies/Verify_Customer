@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-            //DecryptedValue = Decode();         //Testing
+           // DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -48,7 +48,7 @@ namespace form
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
         public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, response, mergedstring, custid;
-        private bool decrypt=true,smallarrlength=true;
+        private bool decrypt=true,smallarlength=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
         public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
 
@@ -167,8 +167,8 @@ namespace form
             string[] valuearray = new string[100];
             Verified_Customer = false; 
             int j = 0, k = 0, startindex ;
-            response = clsWeb.responseFromServer;
-            //response = "bY3VzfQ1VTVH5NlcXDAwMDxw4gcmRExNXw8ZWRu5fFBSRDAwMnxFRE4wMDc=$$$$h8";      //testing
+            //response = clsWeb.responseFromServer;
+            // response = "bY3Q1VzVTfHV2DNlAwcXMDxwagIwcmOXR8wxZWfFRuBSRDAwMnxFRE4wMDQ=h12";      //testing
              //response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";                       //test
 
             if (!((response=="0")|| (response == "1")|| (response == null)))
