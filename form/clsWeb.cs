@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-            DecryptedValue = Decode();         //Testing
+           // DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -167,9 +167,9 @@ namespace form
             string[] valuearray = new string[100];
             Verified_Customer = false; 
             int j = 0, k = 0, startindex ;
-            //response = clsWeb.responseFromServer;
-           // response = "bY3VQ1VzfHTV3DNlcAwMXxwD7gIwcmRNnw8ZW0fFRu$BSRDAwMnxFRE4wMDQ=hc";
-             response = "bZmlyYXxic3R4ffGN8bmFtZA10g==ZXxzZWNvbmRfbmFtZXxiaXJ0aF9wbGFjZXxkYXRlX29mX2JpcnRoh3";      //testing
+            response = clsWeb.responseFromServer;
+          
+            // response = "bZmlyYXxic3R4ffGN8bmFtZA10g==ZXxzZWNvbmRfbmFtZXxiaXJ0aF9wbGFjZXxkYXRlX29mX2JpcnRoh3";      //testing
             //response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";                       //test
 
             if (!((response=="0")|| (response == "1")|| (response == null)))
