@@ -28,7 +28,7 @@ namespace form
         {
             settings = xmlsetting;
             KeyEncoded = begin();
-           // DecryptedValue = Decode();         //Testing
+            DecryptedValue = Decode();         //Testing
         }
 
         public clsWeb()
@@ -40,7 +40,7 @@ namespace form
         protected DatabaseInfo DBInfo;
         public KeyInfo[] data; 
         public static Section sect;
-        public static Details data1;
+        public static Details data1,version;
         public xmlSettings settings;
         
         public static Boolean DecryptedValue,Verified_Customer;
@@ -48,9 +48,9 @@ namespace form
         public static string app, pid, cmp, brc, email, phn1, phn2, ver;
         public static string Hdk, prs, ops, com, dbn,Date;
         public static string code, codeString, ArrayString = null, MergeString, KeyValueMerged, Code, response, mergedstring, custid;
-        private bool decrypt=true,smallarlength=true;
+        private bool decrypt=true,smallerlength=true;
         public string Encodedkey, Encodedvalue, KeyArrayString, ValueArrayString;
-        public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2;
+        public static int keyArrayLength, valueArrayLength, MergedLength, intNum, i = 2, index = 0, pos = 0,pos1=0;
 
         public string[] keyArray;
         public string[] valueArray;
@@ -80,7 +80,7 @@ namespace form
                 MySqlConnection cnn = new MySqlConnection(connectionstring);
                 cnn.Open();
                 data1 = clsDBConnection.getInformation(cnn);
-
+                version = clsDBConnection.getcondition(cnn);
                 Hdk = clsKeyInfo.getKeySerial (cnn,password,"H01",decrypt);
                 prs = clsKeyInfo.getKeySerial(cnn, password, "H02", decrypt);
                 ops = clsKeyInfo.getKeyName(cnn, password, "S01", decrypt);
@@ -112,11 +112,11 @@ namespace form
                 if (!Verified_Customer)            // Stage1
                 {
                     keyArray = new string[] { "pid", "cmp", "brc", "app", "ver", "eml", "phn", "hdk", "prs", "ops", "com", "dbn", "isd" };
-                    valueArray = new string[] { pid, data1.cmp, data1.brc, app, data1.ver, data1.eml, data1.phn, Hdk, prs, ops, com, dbn, date };
+                    valueArray = new string[] { pid, data1.cmp, data1.brc, app, version.ver, data1.eml, data1.phn, Hdk, prs, ops, com, dbn, date };
                 }
                 else                      //Stage 2
                 {
-                 //   sect = getDetail(cnn, ref errorstring);
+                 
                     keyArray = new string[] { "cus", "seq","prd","edn", "ver" };
                     valueArray = new string[] { sect.custid, sect.seqno, sect.prd, sect.edn, sect.version };
                 }
@@ -168,8 +168,9 @@ namespace form
             Verified_Customer = false; 
             int j = 0, k = 0, startindex ;
             //response = clsWeb.responseFromServer;
-            // response = "bY3Q1VzVTfHV2DNlAwcXMDxwagIwcmOXR8wxZWfFRuBSRDAwMnxFRE4wMDQ=h12";      //testing
-             //response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";                       //test
+           // response = "bY3VQ1VzfHTV3DNlcAwMXxwD7gIwcmRNnw8ZW0fFRu$BSRDAwMnxFRE4wMDQ=hc";
+             response = "bZmlyYXxic3R4ffGN8bmFtZA10g==ZXxzZWNvbmRfbmFtZXxiaXJ0aF9wbGFjZXxkYXRlX29mX2JpcnRoh3";      //testing
+            //response = "dZmlycYXxi$3Rf5bmFtZXxzZWNvb7gmRfbmFtZQ==$$$h1";                       //test
 
             if (!((response=="0")|| (response == "1")|| (response == null)))
             {
@@ -205,40 +206,93 @@ namespace form
                     string[] array = clsWeb.splitByIntNum(mergedstring, random);
 
                         //// Split an Array into two arrays ////
-                   if(keyArrayLength<valueArrayLength)
-                   {
-                        startindex = 0;  
-                        keyarray = smallStrArray(startindex,array,keyArrayLength);
-                        valuearray= largeStrArray(startindex+1,array,keyArrayLength);
-                   }
-                   else if(keyArrayLength>valueArrayLength)
-                   {
-                         startindex = 1;
-                         keyarray = largeStrArray(startindex-1,array, valueArrayLength);
-                         valuearray = smallStrArray(startindex,array, valueArrayLength);
-                    }
+                        /*        if(keyArrayLength<valueArrayLength)
+                                {
+                                     startindex = 0;  
+                                     keyarray = smallStrArray(startindex,array,keyArrayLength);
+                                     valuearray= largeStrArray(startindex+1,array,keyArrayLength);
+                                }
+                                else if(keyArrayLength>valueArrayLength)
+                                {
+                                      startindex = 1;
+                                      keyarray = largeStrArray(startindex-1,array, valueArrayLength);
+                                      valuearray = smallStrArray(startindex,array, valueArrayLength);
+                                 }  */
+                        while (keyArrayLength < valueArrayLength)
+                        {
+                            while (pos < keyArrayLength)
+                            {
+                                if (index % 2 == 0)
+                                {
+                                    keyarray[pos] = array[index];
+                                    pos++;
+                                }
+                                else
+                                {
+                                    valuearray[pos1] = array[index];
+                                    pos1++;
+                                }
+                                index++;
+                                
+                            }
+                            if (pos >= keyArrayLength)
+                            {
+                                valuearray[pos1] = array[index];
+                                index++; pos1++;
+                            }
+                            if (index >= array.Length)
+                                break;
+                        }
+                        while (valueArrayLength < keyArrayLength)
+                        {
+                             while (pos <= valueArrayLength)
+                             {
+                                  if (index % 2 == 0)
+                                  {
+                                        keyarray[pos] = array[index];
+                                        pos++;
+                                  }
+                                  else
+                                  {
+                                        valuearray[pos1] = array[index];
+                                         pos1++;
+                                   }
+                                   index++;
+                                    
+                             }
+                             if (index > valueArrayLength)
+                             {
+                                   keyarray[pos] = array[index];
+                                   index++;
+                                   pos++;
+                             }
+                             if (index>=array.Length)
+                                    break;
+                        }
 
+                        keyarray = keyarray.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                        valuearray = valuearray.Where(x => !string.IsNullOrEmpty(x)).ToArray();
                         ///////////////////////// 
 
                         //// Find last element from array  and if "$" exist , Remove it    ////
 
-                    keyarray = removeLastEle(keyarray.Last(),keyarray);
-                    valuearray = removeLastEle(valuearray.Last(),valuearray);
+                        keyarray = removeLastEle(keyarray.Last(),keyarray);
+                        valuearray = removeLastEle(valuearray.Last(),valuearray);
                  
-                    ////////////////////////
+                         ////////////////////////
 
-                    string keystring = clsWeb.generateCode(keyarray);
-                    string valuestring = clsWeb.generateCode(valuearray);
-                    string keys = clsWeb.Base64Decode(keystring);
-                    string values = clsWeb.Base64Decode(valuestring);
-                    string[] keysArr = clsWeb.decodedArray(keys);
-                    string[] valuessArr = clsWeb.decodedArray(values);
-                    string cust = getValue(keysArr, valuessArr, "cus");
-                    string seq = getValue(keysArr, valuessArr, "seq");
-                    string prd = getValue(keysArr, valuessArr, "prd");
-                    string edn = getValue(keysArr, valuessArr, "edn");
+                        string keystring = clsWeb.generateCode(keyarray);
+                        string valuestring = clsWeb.generateCode(valuearray);
+                        string keys = clsWeb.Base64Decode(keystring);
+                        string values = clsWeb.Base64Decode(valuestring);
+                        string[] keysArr = clsWeb.decodedArray(keys);
+                        string[] valuessArr = clsWeb.decodedArray(values);
+                        string cust = getValue(keysArr, valuessArr, "cus");
+                        string seq = getValue(keysArr, valuessArr, "seq");
+                        string prd = getValue(keysArr, valuessArr, "prd");
+                        string edn = getValue(keysArr, valuessArr, "edn");
 
-                    clsDBConnection.updateTable(cnn, cust, seq,prd,edn);
+                        clsDBConnection.updateTable(cnn, cust, seq,prd,edn);
                     }
                 }
                 catch (Exception ex)
@@ -331,7 +385,7 @@ namespace form
         }
         public static string[] largeStrArray(int startindex,string[] arr, int keylength)
         {
-            string[] array = new string[50];
+            string[] array = new string[500];
             int j = 0;
             int index=0;
             for (int i = startindex; i < arr.Length; i += 2)
@@ -430,7 +484,7 @@ namespace form
         }
         public static string[] splitByIntNum(string str, int chunksize)
         {
-            string[] substr = new string[200];
+            string[] substr = new string[500];
             int len = str.Length;
             while (!String.IsNullOrEmpty(str))
             {
@@ -491,7 +545,7 @@ namespace form
         public static string[] decodedArray(string str)
         {
             int pos = 0, i = 0, len = str.Length;
-            string[] Arraydecoded = new string[100];
+            string[] Arraydecoded = new string[1000];
             for (i = 0; i <= len; i++)
             {
                 if (str.Contains("|"))

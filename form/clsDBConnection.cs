@@ -41,40 +41,40 @@ namespace form
         {
             return "uid=root"  + "; password=metalic" + "; host = " + dbInfo.ServerName + "; database=" + dbInfo.DBName + "; port = " + dbInfo.DBPort;
         }
-      /*  public static string getcondition(MySqlConnection conn, ref string errorString)
-        {
-            string custid = "";
+          public static Details getcondition(MySqlConnection conn)
+          {
+              Details detail = new Details();
 
-            string strSql = "select customerid from softwareinfo";
-            MySqlCommand Com = new MySqlCommand();
-            MySqlDataReader reader;
-            Com.Connection = conn;
-            try
-            {
-                Com.CommandText = strSql;
-                reader = Com.ExecuteReader();
+              string str = "select max(ver) as version from logsoftwareupdate ";
+            
+              MySqlCommand com = new MySqlCommand(str, conn);
+              MySqlDataReader reader;
+              com.Connection = conn;
+              try
+              {
+                  com.CommandText = str;
+                  reader = com.ExecuteReader();
                 while (reader.Read())
                 {
-                    custid = reader["customerid"].ToString();
+                    detail.ver = reader["version"].ToString();
+                }                
 
-                }
-                reader.Close();
-            }
-            catch (MySqlException sqlEx)
-            {
-                errorString = sqlEx.Message;
+                  reader.Close();
+              }
+              catch (SqlException ex)
+              {
+                  errorstring = ex.Message;
+              }
+              com.Dispose();
+            return detail;
+          }     
 
-            }
-            return custid;
-            Com.Dispose();
-        }     */
-    
         public static Details getInformation(MySqlConnection conn)
         {
             Details detail = new Details();
 
-            string str = "select c.name as name ,max(l.ver) as version,s.defaultbranch,b.email,b.phone1 ";
-            str += "from companymaster c join logsoftwareupdate l join setup s inner join branchmaster b on s.defaultbranch = b.code";
+            string str = "select c.name as name ,s.defaultbranch,b.email,b.phone1 ";
+            str += "from companymaster c join setup s inner join branchmaster b on s.defaultbranch = b.code";
             
 
             MySqlCommand com = new MySqlCommand(str, conn);
@@ -88,7 +88,7 @@ namespace form
                 {
                    // detail.app = reader["name"].ToString();
                     detail.cmp = reader["name"].ToString();
-                    detail.ver = reader["version"].ToString();
+                   // detail.ver = reader["version"].ToString();
                     detail.brc = reader["defaultbranch"].ToString();
                     detail.eml = reader["email"].ToString();
                     detail.phn = reader["phone1"].ToString();
